@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the single-page presentation directly in the index route and its brand color in the global semantic tokens, so the site remains minimal and consistent.
