@@ -14,6 +14,15 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    ...(githubPages ? { prerender: { enabled: true, crawlLinks: true, failOnError: true } } : {}),
+    ...(githubPages
+      ? {
+          prerender: {
+            enabled: true,
+            crawlLinks: true,
+            failOnError: true,
+            filter: ({ path }: { path: string }) => !path.startsWith("/images/"),
+          },
+        }
+      : {}),
   },
 });

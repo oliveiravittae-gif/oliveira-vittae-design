@@ -493,6 +493,112 @@ function Index() {
             </p>
           </div>
         </section>
+        <section
+          id="carla"
+          className="py-20 bg-slate-900 border-b border-slate-800"
+          aria-labelledby="carla-title"
+        >
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-vittaeGold text-xs font-semibold tracking-widest">
+                Inteligência operacional 24/7
+              </span>
+              <h2 id="carla-title" className="text-3xl lg:text-4xl font-extrabold text-white mt-2">
+                Veja a Carla em ação
+              </h2>
+              <p className="text-slate-300 mt-3">
+                Do primeiro contato ao agendamento automático: atendimento humanizado, qualificação
+                de leads e organização de agenda conforme as regras e integrações do seu negócio.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-6 flex justify-center">
+                <div className="w-full max-w-sm bg-slate-950 border border-slate-700/80 rounded-3xl p-4 shadow-2xl relative overflow-hidden">
+                  <video
+                    src="/images/05_CARLA_Demonstracao_30s.mp4"
+                    controls
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                    aria-label="Demonstração simulada da Carla no WhatsApp"
+                    aria-describedby="carla-video-note"
+                    className="w-full h-auto rounded-2xl shadow-lg"
+                  >
+                    Seu navegador não suporta vídeos HTML5.{" "}
+                    <a href="/images/05_CARLA_Demonstracao_30s.mp4">Abrir o vídeo demonstrativo</a>.
+                  </video>
+                  <div className="mt-4 text-center">
+                    <span id="carla-video-note" className="text-xs text-slate-400">
+                      Demonstração simulada • Dados fictícios
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-6 space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div
+                      aria-hidden="true"
+                      className="w-8 h-8 rounded-lg bg-vittaeGold/10 border border-vittaeGold/30 text-vittaeGold flex items-center justify-center font-bold shrink-0"
+                    >
+                      01
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Acolhimento fora do horário</h3>
+                      <p className="text-sm text-slate-400">
+                        O cliente pergunta à noite ou no fim de semana; a Carla pode acolher o
+                        contato com contexto e profissionalismo, conforme a configuração do
+                        atendimento.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div
+                      aria-hidden="true"
+                      className="w-8 h-8 rounded-lg bg-vittaeGold/10 border border-vittaeGold/30 text-vittaeGold flex items-center justify-center font-bold shrink-0"
+                    >
+                      02
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Consulta de valores e agenda</h3>
+                      <p className="text-sm text-slate-400">
+                        Com as integrações necessárias, a IA consulta valores e horários disponíveis
+                        de acordo com as regras do seu negócio e apresenta opções claras.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div
+                      aria-hidden="true"
+                      className="w-8 h-8 rounded-lg bg-vittaeGold/10 border border-vittaeGold/30 text-vittaeGold flex items-center justify-center font-bold shrink-0"
+                    >
+                      03
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Agendamento confirmado</h3>
+                      <p className="text-sm text-slate-400">
+                        Na demonstração, os dados são validados e o compromisso é organizado. Na
+                        implantação, a confirmação depende do registro na agenda integrada.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-4">
+                  <a
+                    href="https://wa.me/5521979703488?text=Ol%C3%A1!%20Vi%20a%20demonstra%C3%A7%C3%A3o%20da%20Carla%20e%20quero%20solicitar%20uma%20demonstra%C3%A7%C3%A3o%20personalizada%20para%20minha%20empresa."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-3 bg-vittaeGold hover:bg-vittaeGoldDark text-vittaeDark font-bold px-8 py-4 rounded-xl transition shadow-xl text-base w-full sm:w-auto"
+                  >
+                    <span>Solicitar demonstração da Carla</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <section id={"metodo"} className={"wrap section"}>
           <div className={"grid gap-12 lg:grid-cols-2"}>
             <div className={"section-heading"}>
