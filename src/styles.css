@@ -22,6 +22,14 @@
   --color-brand-yellow: var(--brand-yellow);
   --color-brand-navy: var(--brand-navy);
   --color-brand-gold: var(--brand-gold);
+  --color-vittaeDark: var(--brand-navy);
+  --color-vittaeGold: var(--brand-gold);
+  --color-vittaeGoldDark: #b38f48;
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-gold: var(--brand-gold);
+  --color-vittaeDark: var(--brand-navy);
+  --color-vittaeGold: var(--brand-gold);
+  --color-vittaeGoldDark: #b38f48;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -784,4 +792,31 @@ dialog p {
   .navigation {
     top: 96px;
   }
+}
+
+.conversion-hero h1 {
+  font-weight: 800;
+  font-size: clamp(36px, 4.6vw, 60px);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+.conversion-hero h3 {
+  font-weight: 700;
+}
+.conversion-authority h2 {
+  font-size: clamp(30px, 3.5vw, 40px);
+  line-height: 1.2;
+  font-weight: 800;
+}
+.conversion-authority h3 {
+  font-weight: 700;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+header.sticky {
+  background: rgba(26, 43, 68, 0.96);
 }

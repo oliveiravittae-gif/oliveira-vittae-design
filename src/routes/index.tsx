@@ -109,7 +109,7 @@ function Index() {
         {"Ir para o conteúdo"}
       </a>
 
-      <header className={"border-b border-white/10"}>
+      <header className={"border-b border-white/10 sticky top-0 z-50 backdrop-blur"}>
         <div className={"wrap flex items-center justify-between gap-6 py-5"}>
           <a href={"#inicio"} className={"brand"} aria-label={"Oliveira Vittae, início"}>
             <img
@@ -135,6 +135,7 @@ function Index() {
           <nav id={"navigation"} aria-label={"Navegação principal"} className={"navigation"}>
             <a href={"#solucoes"}>{"Soluções"}</a>
             <a href={"#metodo"}>{"Nosso método"}</a>
+            <a href={"#autoridade"}>{"Autoridade"}</a>
             <a href={"#perguntas"}>{"Perguntas"}</a>
             <a href={"#diagnostico"} className={"nav-cta"}>
               {"Solicitar diagnóstico "}
@@ -145,102 +146,187 @@ function Index() {
       </header>
 
       <main id={"conteudo"}>
-        <section id={"inicio"} className={"hero wrap grid items-center gap-12 lg:grid-cols-2"}>
-          <div>
-            <p className={"eyebrow"}>
-              <span className={"status-dot"}></span>
-              {" Estratégia digital para negócios B2B"}
-            </p>
-            <h1>
-              {"Seu site trava."}
-              <br />
-              {"Seu WhatsApp demora."}
-              <br />
-              <em>{"Seu cliente vai embora."}</em>
-            </h1>
-            <p className={"lead"}>
-              {
-                "O custo não aparece no extrato. Aparece nas oportunidades que sua empresa deixa escapar todos os dias."
-              }
-            </p>
-            <p className={"text-slate-300 leading-relaxed mt-5"}>
-              {
-                "A Oliveira Vittae Designer & IA conecta sites de alta performance, landing pages e agentes de IA para transformar interesse em conversas comerciais — com estratégia, clareza e atendimento ágil."
-              }
-            </p>
-            <a
-              data-whatsapp={""}
-              href={
-                "https://wa.me/5521979703488?text=Ol%C3%A1!%20Quero%20dominar%20meu%20mercado%20com%20sites%20de%20alta%20performance%20e%20IA.%20Gostaria%20de%20solicitar%20um%20diagn%C3%B3stico%20digital%20gratuito%20para%20minha%20empresa."
-              }
-              className={"button mt-8"}
-              target={"_blank"}
-              rel={"noopener noreferrer"}
-            >
-              {"Quero dominar meu mercado com sites de alta performance e IA "}
-              <span aria-hidden={"true"}>{"↗"}</span>
-            </a>
-            <p className={"micro mt-4"}>
-              {"Comece com um diagnóstico digital gratuito. Sem compromisso."}
-            </p>
-            <div className={"hero-signature"}>
-              <span>{"Rio de Janeiro e Baixada Fluminense"}</span>
-              <span>{"Presença digital com visão de longo prazo"}</span>
-            </div>
-          </div>
+        <section
+          className={
+            "relative overflow-hidden py-20 lg:py-28 bg-gradient-to-b from-vittaeDark via-[#132238] to-[#0f172a] border-b border-slate-800 conversion-hero"
+          }
+          id={"inicio"}
+        >
           <div
-            className={"architecture"}
-            role={"img"}
-            aria-label={
-              "Ilustração conceitual do fluxo entre um site, a qualificação por IA e o atendimento comercial"
+            className={
+              "max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
             }
           >
-            <div className={"architecture-top"}>
-              <span className={"eyebrow"}>{"Sua operação, conectada"}</span>
-              <span className={"architecture-tag"}>{"Visão conceitual"}</span>
-            </div>
-            <div className={"logo-showcase"}>
-              <img
-                src={"/images/logo-oficial.png"}
-                alt={"Logo oficial Oliveira Vittae Designer & IA"}
-                width={"1254"}
-                height={"1254"}
-                fetchPriority={"high"}
-              />
-            </div>
-            <div className={"connector"} aria-hidden={"true"}>
-              {"↓"}
-            </div>
-            <div className={"flow-step"}>
-              <span className={"step-icon"}>{"01"}</span>
-              <div>
-                <strong>{"Interesse com direção"}</strong>
-                <p>{"O visitante encontra uma próxima ação clara."}</p>
+            <div className={"lg:col-span-7 space-y-6"}>
+              <div
+                className={
+                  "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-vittaeGold/10 border border-vittaeGold/30 text-vittaeGold text-xs font-semibold tracking-wide uppercase"
+                }
+              >
+                <span className={"w-2 h-2 rounded-full bg-vittaeGold animate-pulse"}></span>
+                {
+                  "\n                        Engenharia de Conversão B2B • RJ & Baixada Fluminense\n                    "
+                }
+              </div>
+              <h1
+                className={
+                  "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight"
+                }
+              >
+                {"\n                        Seu site trava."}
+                <br />
+                {"Seu WhatsApp demora."}
+                <br />
+                <span className={"text-vittaeGold"}>{"Seu cliente vai embora."}</span>
+              </h1>
+              <p className={"text-lg text-slate-300 max-w-2xl leading-relaxed"}>
+                {
+                  "\n                        O custo invisível de uma presença digital amadora não aparece no extrato: ele drena seus lucros todos os dias para os concorrentes que respondem mais rápido. Unimos sites de alta velocidade e agentes de IA para blindar a sua operação comercial.\n                    "
+                }
+              </p>
+              <div className={"flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4"}>
+                <a
+                  href={
+                    "https://wa.me/5521979703488?text=Olá!%20Quero%20garantir%20meu%20diagnóstico%20digital%20estratégico%20com%20a%20Oliveira%20Vittae."
+                  }
+                  target={"_blank"}
+                  rel={"noopener noreferrer"}
+                  className={
+                    "inline-flex items-center justify-center gap-3 bg-vittaeGold hover:bg-vittaeGoldDark text-vittaeDark font-bold px-8 py-4 rounded-xl transition shadow-xl text-base text-center"
+                  }
+                >
+                  <span>{"Garantir Diagnóstico Gratuito"}</span>
+                  <span aria-hidden={"true"}>{"↗"}</span>
+                </a>
+                <div
+                  className={
+                    "text-xs text-slate-400 text-center sm:text-left flex flex-col justify-center"
+                  }
+                >
+                  <span className={"text-amber-400 font-semibold"}>{"⚠️ Agenda Limitada:"}</span>
+                  {
+                    " Apenas 5 diagnósticos estratégicos abertos esta semana.\n                        "
+                  }
+                </div>
+              </div>
+              <div
+                className={
+                  "pt-6 flex items-center gap-6 text-xs text-slate-400 border-t border-slate-800/80"
+                }
+              >
+                <div>
+                  {"📍 Foco estratégico: "}
+                  <strong className={"text-slate-200"}>{"Rio de Janeiro e Baixada"}</strong>
+                </div>
+                <div>{"⚡ Velocidade Core Web Vitals"}</div>
               </div>
             </div>
-            <div className={"connector"} aria-hidden={"true"}>
-              {"↓"}
-            </div>
-            <div className={"flow-step"}>
-              <span className={"step-icon"}>{"02"}</span>
-              <div>
-                <strong>{"Conversa com contexto"}</strong>
-                <p>{"A IA acolhe e qualifica conforme suas regras."}</p>
+            <div className={"lg:col-span-5"}>
+              <div
+                className={
+                  "bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 shadow-2xl backdrop-blur relative"
+                }
+              >
+                <div
+                  className={
+                    "absolute -top-3 -right-3 bg-vittaeGold text-vittaeDark text-xs font-bold px-3 py-1 rounded-full shadow"
+                  }
+                >
+                  {"Demonstração de atendimento 24/7"}
+                </div>
+                <div className={"flex items-center gap-3 pb-4 border-b border-slate-800"}>
+                  <div
+                    className={
+                      "w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white"
+                    }
+                  >
+                    {"IA"}
+                  </div>
+                  <div>
+                    <h3 className={"text-sm font-bold text-white"}>
+                      {"Agente Inteligente Oliveira Vittae"}
+                    </h3>
+                    <p className={"text-xs text-emerald-400"}>
+                      {"● Online agora qualificando leads"}
+                    </p>
+                  </div>
+                </div>
+                <div className={"py-4 space-y-3 text-xs"}>
+                  <div
+                    className={
+                      "bg-slate-800 p-3 rounded-xl rounded-tl-none text-slate-300 max-w-[85%]"
+                    }
+                  >
+                    {
+                      "\n                                Olá! Vi seu anúncio e gostaria de um orçamento para minha construtora.\n                            "
+                    }
+                  </div>
+                  <div
+                    className={
+                      "bg-vittaeDark border border-vittaeGold/30 p-3 rounded-xl rounded-tr-none text-slate-100 max-w-[85%] ml-auto"
+                    }
+                  >
+                    {
+                      "\n                                Olá! Perfeito. Qual o porte do empreendimento? Já realizamos projetos de alta performance no RJ. Posso agendar um alinhamento técnico com nosso especialista?\n                            "
+                    }
+                  </div>
+                </div>
+                <div className={"pt-2 text-center"}>
+                  <span className={"text-[10px] uppercase tracking-wider text-slate-500 font-bold"}>
+                    {"Conversa ilustrativa — não é um atendimento em tempo real"}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className={"connector"} aria-hidden={"true"}>
-              {"↓"}
+          </div>
+        </section>
+        <section
+          id={"autoridade"}
+          className={"py-20 bg-[#132238]/50 border-b border-slate-800 conversion-authority"}
+        >
+          <div className={"max-w-7xl mx-auto px-6"}>
+            <div className={"text-center max-w-3xl mx-auto mb-16"}>
+              <span className={"text-vittaeGold text-xs font-semibold tracking-widest uppercase"}>
+                {"Autoridade Comprovada"}
+              </span>
+              <h2 className={"text-3xl lg:text-4xl font-extrabold text-white mt-2"}>
+                {"Por que empresas líderes no Rio confiam na Oliveira Vittae"}
+              </h2>
+              <p className={"text-slate-300 mt-3"}>
+                {
+                  "Engenharia de precisão voltada para o mercado corporativo, industrial e de construção civil."
+                }
+              </p>
             </div>
-            <div className={"flow-step gold-step"}>
-              <span className={"step-icon"}>{"03"}</span>
-              <div>
-                <strong>{"Oportunidade para sua equipe"}</strong>
-                <p>{"Encaminhamento para o próximo passo comercial."}</p>
+            <div className={"grid grid-cols-1 md:grid-cols-3 gap-8"}>
+              <div className={"bg-slate-900 border border-slate-800 p-8 rounded-2xl relative"}>
+                <div className={"text-vittaeGold font-black text-4xl mb-4"}>{"+30%"}</div>
+                <h3 className={"text-lg font-bold text-white mb-2"}>{"Retenção de Tráfego"}</h3>
+                <p className={"text-sm text-slate-400"}>
+                  {
+                    "Eliminação drástica de rejeições através de otimização extrema de carregamento e arquitetura limpa."
+                  }
+                </p>
+              </div>
+              <div className={"bg-slate-900 border border-slate-800 p-8 rounded-2xl relative"}>
+                <div className={"text-vittaeGold font-black text-4xl mb-4"}>{"24/7"}</div>
+                <h3 className={"text-lg font-bold text-white mb-2"}>{"Respostas Imediatas"}</h3>
+                <p className={"text-sm text-slate-400"}>
+                  {
+                    "Nenhum lead fica sem atendimento fora do horário comercial na Baixada Fluminense e capitais."
+                  }
+                </p>
+              </div>
+              <div className={"bg-slate-900 border border-slate-800 p-8 rounded-2xl relative"}>
+                <div className={"text-vittaeGold font-black text-4xl mb-4"}>{"100%"}</div>
+                <h3 className={"text-lg font-bold text-white mb-2"}>{"Foco Comercial B2B"}</h3>
+                <p className={"text-sm text-slate-400"}>
+                  {
+                    "Estruturas desenhadas sob medida para construtoras, indústrias e comércios de alto padrão."
+                  }
+                </p>
               </div>
             </div>
-            <p className={"micro text-center mt-6"}>
-              {"Tecnologia a serviço da relação com o cliente."}
-            </p>
           </div>
         </section>
         <div className={"sector-strip border-y border-white/10"}>
