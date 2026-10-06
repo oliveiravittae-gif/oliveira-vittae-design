@@ -62,7 +62,6 @@ describe("CARLA access screens", () => {
     fireEvent.click(screen.getByRole("button", { name: "Novo cadastro" }));
     for (const name of [
       "Nome completo",
-      "Matrícula informada pela empresa",
       "CPF (11 dígitos)",
       "Endereço completo, número, bairro, cidade, UF e CEP",
       "Celular com DDD",
@@ -72,6 +71,7 @@ describe("CARLA access screens", () => {
       expect(screen.getByLabelText(name)).toBeRequired();
     }
     expect(screen.getByText(/A foto é obrigatória na próxima etapa/)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Matrícula informada pela empresa")).not.toBeInTheDocument();
   });
   it("does not offer representative self-registration in administration", async () => {
     mock.client.mockReturnValue({

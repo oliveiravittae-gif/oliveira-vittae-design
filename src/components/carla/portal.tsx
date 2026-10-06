@@ -428,7 +428,6 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
     authMode === "signup"
       ? [
           { name: "name", label: "Nome completo" },
-          { name: "registration", label: "Matrícula informada pela empresa" },
           { name: "document", label: "CPF (11 dígitos)" },
           { name: "address", label: "Endereço completo, número, bairro, cidade, UF e CEP" },
           { name: "phone", label: "Celular com DDD", type: "tel" },
@@ -553,7 +552,6 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           data: {
                             carla_signup: "true",
                             name: d.name.trim(),
-                            registration: d.registration.trim(),
                             document,
                             address: d.address.trim(),
                             phone: d.phone.replace(/\D/g, ""),
@@ -592,8 +590,9 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                 </div>
                 {authMode === "signup" && (
                   <p>
-                    A foto é obrigatória na próxima etapa, após confirmação do e-mail. A aprovação
-                    verifica cadastro, matrícula, foto e vínculo formalizado.
+                    Sua matrícula CLR-2026 será gerada automaticamente no cadastro. A foto é
+                    obrigatória na próxima etapa, após confirmação do e-mail. A aprovação verifica
+                    cadastro, matrícula, foto e vínculo formalizado.
                   </p>
                 )}
               </Section>

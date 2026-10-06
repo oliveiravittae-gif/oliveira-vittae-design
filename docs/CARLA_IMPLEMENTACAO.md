@@ -20,7 +20,7 @@ O V1.10 é uma versão individual para conferência; não há prova de assinatur
 
 ## Fluxo operacional
 
-1. Representante solicita cadastro com nome, matrícula fornecida pela empresa, CPF válido, endereço, telefone, email e senha. Supabase Auth cria o usuário e um trigger cria perfil pendente. Não se usa metadata para decidir permissões.
+1. Representante solicita cadastro com nome, CPF válido, endereço, telefone, email e senha. Supabase Auth cria o usuário e um trigger cria perfil pendente. Não se usa metadata para decidir permissões.
 2. Após confirmar email e entrar, envia foto obrigatória de até 5 MB (JPEG, PNG ou WebP). O fluxo separado permite concluir o upload com sessão autenticada quando a confirmação de email está habilitada.
 3. Administração confere foto, identidade, matrícula e vínculo formalizado; aprova com motivo. Contas suspensas e encerradas não acessam os módulos comerciais. A carteira só é exibida para perfil ativo.
 4. Representante registra oportunidade e abordagem demonstrada. Administração confere duplicidade e atribuição, confirma proteção de 90 dias e valida interações substanciais que renovam o prazo.
@@ -74,3 +74,7 @@ Ainda pendentes: SMTP próprio (credenciais não constam no acessos.md), recebim
 Casos que exigem decisão humana documentada: qualidade da prova, duplicidade, direitos legais especiais, reconstituição de crédito fora de ordem, titularidade histórica ainda não registrada antes da transferência, aditivos, expansão sucessiva complexa, alteração de regra e calendário bancário. Usar ajustes documentados, preservando os lançamentos originais; não presumir perda de direitos.
 
 Referências técnicas consultadas: [Auth](https://supabase.com/docs/guides/auth/passwords), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Storage](https://supabase.com/docs/guides/storage/security/access-control). Changelog revisado em 06/10/2026.
+
+## Matrícula automática — 06/10/2026
+
+Novos cadastros recebem matrícula gerada pelo banco, começando em CLR-2026-0001005, seguida de CLR-2026-0001006. O formulário não aceita matrícula digitada. A sequência privada evita duplicidade em cadastros simultâneos; tentativas canceladas podem deixar intervalos. Matrículas existentes permanecem preservadas. A matrícula é emitida no cadastro pendente e não concede acesso comercial; a aprovação administrativa continua obrigatória. Migration 20261006155736_carla_registration_sequence.sql aplicada; 17 testes locais aprovados. A próxima emissão remota foi conferida sem consumir a sequência.

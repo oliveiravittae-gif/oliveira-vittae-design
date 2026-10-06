@@ -66,6 +66,20 @@ describe("CARLA database: real Postgres SQL with synthetic Auth/Storage schemas"
   afterAll(async () => {
     await db?.close();
   });
+  it("allocates consecutive registrations centrally and ignores supplied metadata", async () => {
+    expect((await asUser(rep, "select registration from public.carla_profiles")).rows).toEqual([
+      { registration: "CLR-2026-0001005" },
+    ]);
+    expect((await asUser(other, "select registration from public.carla_profiles")).rows).toEqual([
+      { registration: "CLR-2026-0001006" },
+    ]);
+    await expect(
+      asUser(rep, "select nextval('carla_private.registration_2026')"),
+    ).rejects.toThrow();
+    await expect(
+      asUser(null, "select nextval('carla_private.registration_2026')"),
+    ).rejects.toThrow();
+  });
   it("validates CPF and rejects repeated or incorrect digits", async () => {
     expect(validCPF("529.982.247-25")).toBe(true);
     expect(validCPF("11111111111")).toBe(false);
