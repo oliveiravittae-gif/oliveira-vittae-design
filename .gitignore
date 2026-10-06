@@ -15,6 +15,10 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+.env
+.env.*
+!.env.example
+supabase/.temp/
 
 # Wrangler / Cloudflare
 .wrangler/
@@ -33,3 +37,6 @@ dist-ssr
 
 # Static Pages artifact
 pages-dist
+
+# Local connection credentials
+/acessos.md

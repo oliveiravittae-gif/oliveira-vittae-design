@@ -1,0 +1,246 @@
+.carla-portal {
+  min-height: 100vh;
+  background: #f3f5f8;
+  color: #1a2b44;
+  font-family: Arial, sans-serif;
+}
+.carla-header {
+  background: #1a2b44;
+  color: white;
+  padding: 24px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.carla-header > div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.carla-header a {
+  color: inherit;
+}
+.carla-brand {
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+.carla-brand span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #c5a059;
+  margin-top: 6px;
+}
+.carla-content {
+  max-width: 1200px;
+  margin: auto;
+  padding: 42px 24px;
+}
+.carla-portal h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  margin: 0 0 28px;
+}
+.carla-portal h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.carla-portal h3 {
+  font-weight: 700;
+  margin: 20px 0 8px;
+}
+.carla-portal p {
+  line-height: 1.6;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.carla-eyebrow {
+  color: #85682e;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.carla-panel {
+  background: white;
+  border: 1px solid #dce2e9;
+  border-radius: 16px;
+  padding: 28px;
+  margin: 24px 0;
+  box-shadow: 0 8px 28px #1a2b4408;
+}
+.carla-portal button {
+  background: #1a2b44;
+  color: white;
+  border-radius: 8px;
+  padding: 11px 18px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.carla-portal button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.carla-portal button:focus-visible,
+.carla-portal a:focus-visible {
+  outline: 3px solid #c5a059;
+  outline-offset: 3px;
+}
+.carla-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 18px;
+  margin: 18px 0;
+}
+.carla-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.carla-form input,
+.carla-form select,
+.carla-form textarea {
+  padding: 11px;
+  border: 1px solid #aebac9;
+  border-radius: 8px;
+  color: #1a2b44;
+  background: white;
+  min-width: 0;
+  font-weight: 400;
+}
+.carla-form textarea {
+  min-height: 90px;
+}
+.carla-form button {
+  align-self: end;
+}
+.carla-message {
+  grid-column: 1/-1;
+  background: #fff6e6;
+  border: 1px solid #c5a059;
+  padding: 14px;
+  border-radius: 8px;
+}
+.carla-actions,
+.carla-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0;
+}
+.carla-tabs button {
+  background: white;
+  color: #1a2b44;
+  border: 1px solid #dce2e9;
+}
+.carla-tabs button[aria-current] {
+  background: #1a2b44;
+  color: white;
+  border-bottom: 3px solid #c5a059;
+}
+.carla-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.carla-metrics article {
+  background: #1a2b44;
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+}
+.carla-metrics strong {
+  font-size: 30px;
+  color: #dec08c;
+}
+.carla-list {
+  display: grid;
+  gap: 14px;
+}
+.carla-list > article {
+  border: 1px solid #dce2e9;
+  padding: 18px;
+  border-radius: 10px;
+}
+.carla-list strong {
+  font-size: 17px;
+}
+.carla-footer {
+  text-align: center;
+  padding: 28px;
+  font-size: 13px;
+}
+.carla-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #1a2b44;
+  color: white;
+  border: 3px solid #c5a059;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+  max-width: 880px;
+}
+.carla-card h2 {
+  color: #e0c48e;
+}
+.carla-card p {
+  font-size: 13px;
+}
+.carla-photo {
+  width: 110px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.carla-qr {
+  width: 120px;
+  height: 120px;
+  background: white;
+  flex-shrink: 0;
+}
+@media (max-width: 700px) {
+  .carla-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .carla-content {
+    padding: 28px 16px;
+  }
+  .carla-panel {
+    padding: 20px;
+  }
+  .carla-card {
+    flex-wrap: wrap;
+    padding: 20px;
+  }
+  .carla-form {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  body:has(.carla-card) * {
+    visibility: hidden;
+  }
+  body:has(.carla-card) .carla-card,
+  body:has(.carla-card) .carla-card * {
+    visibility: visible;
+  }
+  .carla-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    width: 850px;
+  }
+  .carla-portal button {
+    display: none;
+  }
+}

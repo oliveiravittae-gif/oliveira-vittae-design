@@ -26,4 +26,9 @@ if (source !== "dist") {
   cpSync("dist", "pages-dist", { recursive: true });
 }
 writeFileSync("pages-dist/.nojekyll", "");
+// GitHub Pages serves directory indexes for direct entry on each static route.
+for (const route of ["representantes", "admin", "verificar"]) {
+  const path = `pages-dist/${route}/index.html`;
+  if (!existsSync(path)) throw new Error(`Missing prerendered route: /${route}`);
+}
 console.log("Static landing page and referenced assets verified in pages-dist.");
