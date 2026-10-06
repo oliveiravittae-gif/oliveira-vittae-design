@@ -139,7 +139,11 @@ function Form({
       form.reset();
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Não foi possível salvar. Tente novamente.",
+        error instanceof Error
+          ? error.message === "Invalid login credentials"
+            ? "E-mail ou senha incorretos. Se abriu o link de recuperação, defina sua nova senha antes de entrar."
+            : error.message
+          : "Não foi possível salvar. Tente novamente.",
       );
     } finally {
       setBusy(false);
@@ -210,6 +214,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "signup" | "reset" | "password">("login");
   const [tab, setTab] = useState("dashboard");
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -477,6 +482,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
           <a href={admin ? "/representantes" : "/admin"}>
             {admin ? "Representantes" : "Administração"}
           </a>
+          {userId && <button onClick={() => setAuthMode("password")}>Definir senha</button>}
           {userId && (
             <button
               onClick={() => {
@@ -491,6 +497,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
       <div className="carla-content">
         <p className="carla-eyebrow">ÁREA COMERCIAL</p>
         <h1>{admin ? "Administração CARLA" : "Sua carteira. Seu desempenho."}</h1>
+        {notice && <p role="status">{notice}</p>}
         {!db ? (
           <Section title="Conexão pendente">
             <p>
@@ -564,7 +571,12 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                       });
                     else if (authMode === "password") {
                       r = await db.auth.updateUser({ password: d.password });
-                      if (!r.error) setAuthMode("login");
+                      if (!r.error) {
+                        setNotice(
+                          "Senha definida. Use esta nova senha para entrar no painel administrativo.",
+                        );
+                        setAuthMode("login");
+                      }
                     } else
                       r = await db.auth.signInWithPassword({
                         email: d.email,

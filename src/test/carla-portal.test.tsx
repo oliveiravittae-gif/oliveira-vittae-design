@@ -8,6 +8,39 @@ vi.mock("@/lib/carla", async (importOriginal) => ({
 }));
 afterEach(cleanup);
 describe("CARLA access screens", () => {
+  it("lets a recovered session define a password without a representative profile", async () => {
+    const updateUser = vi.fn().mockResolvedValue({ error: null });
+    const query = {
+      select: () => query,
+      eq: () => query,
+      maybeSingle: async () => ({ data: null, error: null }),
+    };
+    mock.client.mockReturnValue({
+      from: () => query,
+      rpc: async () => ({ data: true, error: null }),
+      auth: {
+        updateUser,
+        onAuthStateChange: (
+          callback: (event: string, session: { user: { id: string } }) => void,
+        ) => {
+          callback("INITIAL_SESSION", { user: { id: "synthetic-admin" } });
+          return { data: { subscription: { unsubscribe: vi.fn() } } };
+        },
+      },
+    });
+    render(<CarlaPortal />);
+    expect(
+      await screen.findByText("Seu usuário não possui cadastro de representante CARLA."),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Definir senha" }));
+    expect(screen.getByRole("heading", { name: "Definir nova senha" })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Nova senha (mínimo 12 caracteres)"), {
+      target: { value: "synthetic-password-only" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar senha" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Senha definida.");
+    expect(updateUser).toHaveBeenCalledWith({ password: "synthetic-password-only" });
+  });
   it("fails closed when Supabase configuration is absent", () => {
     mock.client.mockReturnValue(null);
     render(<CarlaPortal />);
