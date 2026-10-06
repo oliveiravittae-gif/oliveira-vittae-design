@@ -288,6 +288,15 @@
   height: 25mm;
   background: #fff;
 }
+.carla-admin-entry {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #1a2b44;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+}
 .carla-account {
   display: block;
   overflow-wrap: anywhere;

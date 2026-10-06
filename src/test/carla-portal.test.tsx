@@ -86,8 +86,15 @@ describe("CARLA access screens", () => {
     });
     render(<CarlaPortal />);
     expect(
-      await screen.findByText("Seu usuário não possui cadastro de representante CARLA."),
+      await screen.findByRole("heading", { name: "Conta administrativa" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Acessar painel administrativo" })).toHaveAttribute(
+      "href",
+      "/admin/",
+    );
+    expect(
+      screen.queryByText("Seu usuário não possui cadastro de representante CARLA."),
+    ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Definir senha" }));
     expect(screen.getByRole("heading", { name: "Definir nova senha" })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Nova senha (mínimo 12 caracteres)"), {

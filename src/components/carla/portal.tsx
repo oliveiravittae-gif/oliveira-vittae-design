@@ -510,7 +510,9 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
       </header>
       <div className="carla-content">
         <p className="carla-eyebrow">ÁREA COMERCIAL</p>
-        <h1>{admin ? "Administração CARLA" : "Sua carteira. Seu desempenho."}</h1>
+        <h1>
+          {admin || (isAdmin && !profile) ? "Administração CARLA" : "Sua carteira. Seu desempenho."}
+        </h1>
         {notice && <p role="status">{notice}</p>}
         {!db ? (
           <Section title="Conexão pendente">
@@ -628,6 +630,18 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                 <div className="carla-actions">
                   <button onClick={() => void switchAccount()}>Entrar com outra conta</button>
                   <a href="/representantes/">Área de Representantes</a>
+                </div>
+              </Section>
+            ) : !admin && isAdmin && !profile ? (
+              <Section title="Conta administrativa">
+                <p>
+                  Você está conectado como administrador. Acesse o painel para gerenciar
+                  representantes, clientes e comissões.
+                </p>
+                <div className="carla-actions">
+                  <a className="carla-admin-entry" href="/admin/">
+                    Acessar painel administrativo
+                  </a>
                 </div>
               </Section>
             ) : !admin && profile?.status !== "active" ? (
