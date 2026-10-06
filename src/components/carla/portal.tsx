@@ -608,22 +608,39 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                     : "Acesso comercial indisponível"
                 }
               >
-                <p>
-                  {profile
-                    ? `Situação: ${profile.status === "pending" ? "aguardando aprovação" : profile.status === "suspended" ? "suspenso" : "encerrado"}.`
-                    : "Seu usuário não possui cadastro de representante CARLA."}
-                </p>
+                {profile?.status !== "pending" && (
+                  <p>
+                    {profile
+                      ? `Situação: ${profile.status === "pending" ? "aguardando aprovação" : profile.status === "suspended" ? "suspenso" : "encerrado"}.`
+                      : "Seu usuário não possui cadastro de representante CARLA."}
+                  </p>
+                )}
                 {profile?.status === "pending" && (
                   <>
-                    <p>
-                      {profile.photo_path
-                        ? "Foto enviada. Aguarde a conferência administrativa."
-                        : "Envie sua foto para concluir o cadastro obrigatório."}
-                    </p>
+                    <div className="carla-approval-notice" role="status">
+                      <strong>
+                        {profile.photo_path
+                          ? "Foto recebida. Seu cadastro aguarda aprovação."
+                          : "Falta enviar sua foto para concluir o cadastro."}
+                      </strong>
+                      <p>
+                        {profile.photo_path
+                          ? "A administração vai conferir seus dados e sua foto. O acesso à área comercial será liberado após a aprovação. Você não precisa enviar a foto novamente."
+                          : "Escolha uma foto de perfil e clique em Enviar foto. Depois do envio, a administração fará a conferência para liberar seu acesso."}
+                      </p>
+                    </div>
                     <Form
-                      fields={[{ name: "photo", label: "Foto de perfil (até 5 MB)", type: "file" }]}
+                      fields={[
+                        {
+                          name: "photo",
+                          label: profile.photo_path
+                            ? "Substituir foto (opcional, até 5 MB)"
+                            : "Foto de perfil (até 5 MB)",
+                          type: "file",
+                        },
+                      ]}
                       submit={async (_, f) => upload(f)}
-                      label="Enviar foto"
+                      label={profile.photo_path ? "Substituir foto" : "Enviar foto"}
                     />
                   </>
                 )}

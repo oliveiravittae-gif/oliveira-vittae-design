@@ -204,6 +204,26 @@
   background: white;
   flex-shrink: 0;
 }
+.carla-approval-notice {
+  margin: 20px 0 24px;
+  padding: 22px 24px;
+  background: #fff4d9;
+  color: #192c43;
+  border: 1px solid #d6b363;
+  border-left: 5px solid #9b680b;
+  border-radius: 10px;
+  line-height: 1.65;
+}
+.carla-approval-notice strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.4;
+}
+.carla-approval-notice p {
+  margin: 10px 0 0;
+  font-size: 18px;
+  max-width: 75ch;
+}
 @media (max-width: 700px) {
   .carla-header {
     align-items: flex-start;
