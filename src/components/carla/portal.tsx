@@ -210,6 +210,7 @@ const reason: Field = { name: "reason", label: "Justificativa documentada", type
 export function CarlaPortal({ admin = false }: { admin?: boolean }) {
   const [db] = useState(carlaClient);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -357,6 +358,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
       requestVersion.current++;
       setLoading(!!session);
       setUserId(session?.user.id ?? null);
+      setUserEmail(session?.user.email ?? "");
       if (event === "PASSWORD_RECOVERY") setAuthMode("password");
       if (session)
         setTimeout(() => {
@@ -380,6 +382,17 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
     // The Supabase instance is stable for this mounted portal.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, admin]);
+  async function switchAccount() {
+    if (!db) return;
+    const result = await db.auth.signOut({ scope: "local" });
+    if (result.error) {
+      setError("Não foi possível sair desta conta. Tente novamente.");
+      return;
+    }
+    setAuthMode("login");
+    setNotice("");
+    setError("");
+  }
   async function rpc(name: string, args: Record<string, unknown>) {
     if (!db || !userId) throw new Error("Faça login.");
     const r = await db.rpc(name, args);
@@ -478,6 +491,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
           OLIVEIRA VITTAE <span>DESIGNER & IA · CARLA</span>
         </a>
         <div>
+          {userEmail && <span className="carla-account">Conta: {userEmail}</span>}
           <a href={admin ? "/representantes" : "/admin"}>
             {admin ? "Representantes" : "Administração"}
           </a>
@@ -485,7 +499,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
           {userId && (
             <button
               onClick={() => {
-                void db?.auth.signOut();
+                void switchAccount();
               }}
             >
               Sair
@@ -596,9 +610,24 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                   </p>
                 )}
               </Section>
+            ) : error ? (
+              <Section title="Não foi possível verificar seu acesso">
+                <p>A consulta falhou. Clique em Tentar novamente para conferir suas permissões.</p>
+              </Section>
             ) : admin && !isAdmin ? (
               <Section title="Acesso restrito">
-                <p>Esta conta não possui permissão administrativa.</p>
+                <p>
+                  A conta <strong>{userEmail || "conectada"}</strong> não possui permissão
+                  administrativa.
+                </p>
+                <p>
+                  Para administrar a CARLA, entre com sua conta administrativa. Se estiver usando a
+                  demonstração, acesse a Área de Representantes.
+                </p>
+                <div className="carla-actions">
+                  <button onClick={() => void switchAccount()}>Entrar com outra conta</button>
+                  <a href="/representantes/">Área de Representantes</a>
+                </div>
               </Section>
             ) : !admin && profile?.status !== "active" ? (
               <Section

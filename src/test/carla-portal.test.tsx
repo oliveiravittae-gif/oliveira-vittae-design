@@ -8,6 +8,62 @@ vi.mock("@/lib/carla", async (importOriginal) => ({
 }));
 afterEach(cleanup);
 describe("CARLA access screens", () => {
+  function sessionClient(admin: boolean, failed = false) {
+    let callback: (event: string, session: { user: { id: string; email: string } } | null) => void;
+    const email = admin ? "admin@example.invalid" : "demo@example.invalid";
+    const query = {
+      select: () => query,
+      eq: () => query,
+      order: () => query,
+      range: async () => ({ data: [], error: null }),
+      maybeSingle: async () => ({ data: null, error: null }),
+      then: (resolve: (value: unknown) => unknown) =>
+        Promise.resolve({ data: [], error: null }).then(resolve),
+    };
+    const signOut = vi.fn().mockImplementation(async () => {
+      callback("SIGNED_OUT", null);
+      return { error: null };
+    });
+    mock.client.mockReturnValue({
+      from: () => query,
+      rpc: async () => ({
+        data: failed ? null : admin,
+        error: failed ? { message: "Falha de rede sintética" } : null,
+      }),
+      auth: {
+        signOut,
+        onAuthStateChange: (listener: typeof callback) => {
+          callback = listener;
+          callback("INITIAL_SESSION", { user: { id: "synthetic-user", email } });
+          return { data: { subscription: { unsubscribe: vi.fn() } } };
+        },
+      },
+    });
+    return signOut;
+  }
+  it("identifies a representative session and offers switching accounts without granting admin", async () => {
+    const signOut = sessionClient(false);
+    render(<CarlaPortal admin />);
+    expect(await screen.findByRole("heading", { name: "Acesso restrito" })).toBeInTheDocument();
+    expect(screen.getByText("Conta: demo@example.invalid")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Entrar com outra conta" }));
+    expect(await screen.findByRole("heading", { name: "Acesse sua área" })).toBeInTheDocument();
+    expect(signOut).toHaveBeenCalledWith({ scope: "local" });
+  });
+  it("does not misreport a request failure as denied administrative permission", async () => {
+    sessionClient(true, true);
+    render(<CarlaPortal admin />);
+    expect(
+      await screen.findByRole("heading", { name: "Não foi possível verificar seu acesso" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Acesso restrito" })).not.toBeInTheDocument();
+  });
+  it("opens the dashboard when server-side administrative permission is true", async () => {
+    sessionClient(true);
+    render(<CarlaPortal admin />);
+    expect(await screen.findByRole("button", { name: "Aprovações" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Acesso restrito" })).not.toBeInTheDocument();
+  });
   it("lets a recovered session define a password without a representative profile", async () => {
     const updateUser = vi.fn().mockResolvedValue({ error: null });
     const query = {
