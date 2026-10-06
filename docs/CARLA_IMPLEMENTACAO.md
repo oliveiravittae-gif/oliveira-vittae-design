@@ -1,6 +1,6 @@
 # Área de Representantes CARLA
 
-Estado em 06/10/2026: implementação no repositório `oliveiravittae-gif/oliveira-vittae-design`, raiz `D:\0001 - Projetos\0001 - OLIVEIRA VITTAE TECNOLOGIA & IA`. Supabase confirmado pelo arquivo local `acessos.md`: projeto `zhfputohhpvwcdozamtm`, região São Paulo, PostgreSQL 17.11. Migrações aplicadas e integração remota básica validada. As novas rotas ainda não foram publicadas. Credenciais locais estão ignoradas pelo Git.
+Estado em 06/10/2026: implementação no repositório `oliveiravittae-gif/oliveira-vittae-design`, raiz `D:\0001 - Projetos\0001 - OLIVEIRA VITTAE TECNOLOGIA & IA`. Supabase confirmado pelo arquivo local `acessos.md`: projeto `zhfputohhpvwcdozamtm`, região São Paulo, PostgreSQL 17.11. Migrações aplicadas e integração remota básica validada. Rotas publicadas em `https://oliveiravittae.ia.br`; envio de e-mail para representantes ainda depende de SMTP próprio. Credenciais locais estão ignoradas pelo Git.
 
 ## Preservação do site
 
@@ -51,9 +51,9 @@ O projeto foi conferido pela API administrativa antes das alterações: não hav
 
 1. Aplicadas três migrations, com versões locais iguais ao histórico remoto: `20261006135433_carla_representatives.sql`, `20261006140052_carla_access_hardening.sql` e `20261006140312_carla_default_function_permissions.sql`.
 2. Auth email/senha configurado, confirmação obrigatória, mínimo de 12 caracteres, domínio `https://oliveiravittae.ia.br` e redirecionamentos `/representantes` em produção e localhost:5180. SMTP próprio ainda ausente; o serviço padrão restringe destinatários e volume. Não considerar o envio de confirmação/recuperação homologado.
-3. Conta administrativa `oliveiravittae@gmail.com` criada por indicação explícita do usuário; UUID inserido em `carla_private.admins`. Senha inicial aleatória não divulgada, e-mail ainda não confirmado. O usuário precisa definir sua senha pelo fluxo de recuperação após validar envio e destino. Não houve envio de convite nem recuperação nesta etapa.
-4. `.env.local` contém somente URL e chave publishable, ambas ignoradas pelo Git. Configurar as mesmas variáveis públicas em GitHub Actions → Repository variables antes da publicação. Nenhuma credencial privada pertence ao cliente ou ao repositório.
-5. Finalizar SMTP, confirmação e recuperação no navegador, validar recebimentos/provas remotos e publicar as rotas. `node --use-system-ca scripts/test-carla-remote.mjs` é um teste remoto explícito, usa somente contas sintéticas e remove seus arquivos e contas ao final; não executar como rotina sobre cadastros comerciais.
+3. Conta administrativa `oliveiravittae@gmail.com` criada por indicação explícita do usuário; UUID inserido em `carla_private.admins`. Senha inicial aleatória não divulgada. Recuperação solicitada pela API Auth em 06/10/2026 para `/representantes`, HTTP 200. Aceitação do pedido não comprova entrega: o usuário precisa confirmar recebimento e definir sua senha. Não houve envio de convite nem mudança da senha pelo agente.
+4. `.env.local` contém somente URL e chave publishable, ambas ignoradas pelo Git. As mesmas variáveis públicas foram configuradas em GitHub Actions → Repository variables. Nenhuma credencial privada pertence ao cliente ou ao repositório.
+5. Finalizar SMTP próprio, confirmação e recuperação no navegador e validar recebimentos/provas remotos. `node --use-system-ca scripts/test-carla-remote.mjs` é um teste remoto explícito, usa somente contas sintéticas e remove seus arquivos e contas ao final; não executar como rotina sobre cadastros comerciais.
 
 O bucket `carla-photos` é privado. Downloads usam URLs assinadas curtas. O QR é um UUID aleatório e consulta somente nome/matrícula de perfil ativo; não expõe CPF, foto, endereço, email ou listagem de representantes.
 
@@ -67,7 +67,9 @@ Integração remota via APIs aprovada: sessões Auth reais; metadata sem autopro
 
 Supabase Advisors: sem erros; sem alertas nas funções CARLA. A tabela privada de administradores sem política é uma informação esperada: acesso direto negado, consulta somente pelas funções protegidas. Resta alerta Auth de proteção contra senhas vazadas, cuja ativação retornou HTTP 402 (recurso depende do plano). Performance sem alertas WARN; índices ainda sem uso em banco recém-criado aparecem como INFO.
 
-Ainda pendentes: SMTP, confirmação/recuperação de e-mail, jornada completa no navegador, cenários financeiros no serviço remoto e publicação. Os cálculos financeiros foram validados localmente com SQL PostgreSQL, não com movimentações reais. Não houve push nem deploy. Testes de API remota não são E2E de navegador/e-mail.
+Publicação autorizada pelo usuário e concluída: commit `8b7fbdf`, [GitHub Actions 37486972176](https://github.com/oliveiravittae-gif/oliveira-vittae-design/actions/runs/37486972176) com testes, TypeScript, build e deploy aprovados. Leitura HTTP HTTPS confirmou status 200 e títulos corretos em `/`, `/representantes/`, `/admin/` e `/verificar/`. Arquivos institucionais preservados.
+
+Ainda pendentes: SMTP próprio (credenciais não constam no acessos.md), recebimento e conclusão da recuperação de e-mail, jornada completa autenticada no navegador e cenários financeiros no serviço remoto. Os cálculos financeiros foram validados localmente com SQL PostgreSQL, não com movimentações reais. Testes de API remota não são E2E de navegador/e-mail.
 
 Casos que exigem decisão humana documentada: qualidade da prova, duplicidade, direitos legais especiais, reconstituição de crédito fora de ordem, titularidade histórica ainda não registrada antes da transferência, aditivos, expansão sucessiva complexa, alteração de regra e calendário bancário. Usar ajustes documentados, preservando os lançamentos originais; não presumir perda de direitos.
 
