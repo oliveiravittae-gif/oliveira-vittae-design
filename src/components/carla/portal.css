@@ -175,35 +175,118 @@
   padding: 28px;
   font-size: 13px;
 }
+.carla-wallet {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  overflow-x: auto;
+  gap: 24px;
+  margin: 0 0 24px;
+}
 .carla-card {
+  box-sizing: border-box;
+  width: 85mm;
+  height: 50mm;
+  flex: 0 0 85mm;
+  overflow: hidden;
+  border: 0.3mm solid #81909c;
+  border-radius: 3mm;
+  background: #fff;
+  color: #172a41;
+  font-family: Arial, sans-serif;
+}
+.carla-card-heading {
+  height: 13mm;
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: space-between;
+  padding: 0 3mm;
   background: #1a2b44;
-  color: white;
-  border: 3px solid #c5a059;
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 24px;
-  max-width: 880px;
+  color: #fff;
+  font-size: 6.5pt;
+  line-height: 1.4;
 }
-.carla-card h2 {
-  color: #e0c48e;
+.carla-card-heading strong {
+  font-size: 8pt;
+  font-weight: 700;
 }
-.carla-card p {
-  font-size: 13px;
+.carla-card-logo {
+  width: 12mm;
+  height: 12mm;
+  object-fit: contain;
+  border-radius: 1mm;
+  flex-shrink: 0;
+}
+.carla-card-front-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20mm;
+  gap: 2mm;
+  padding: 3mm;
+  align-items: end;
+}
+.carla-card dl {
+  margin: 0;
+  display: grid;
+  gap: 1.3mm;
+}
+.carla-card dt {
+  font-size: 5.5pt;
+  line-height: 1.2;
+  color: #516170;
+}
+.carla-card dd {
+  margin: 0;
+  font-size: 7pt;
+  line-height: 1.25;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.carla-card dd.carla-card-name {
+  font-size: 8pt;
 }
 .carla-photo {
-  width: 110px;
-  height: 140px;
+  width: 20mm;
+  height: 27mm;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 1mm;
+}
+.carla-card-back-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3mm;
+  padding: 2mm 3mm 0;
+  font-size: 9pt;
+  line-height: 1.4;
+}
+.carla-card-back-heading span {
+  font-size: 6.5pt;
+  letter-spacing: 1pt;
+}
+.carla-card-back-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 25mm;
+  align-items: center;
+  gap: 2mm;
+  padding: 2mm 3mm;
+}
+.carla-card-back-body strong {
+  font-size: 6.5pt;
+  line-height: 1.3;
+}
+.carla-card .carla-card-back-body p {
+  font-size: 6.5pt;
+  line-height: 1.35;
+  margin: 1.5mm 0;
+}
+.carla-card-site {
+  font-size: 6.5pt;
+  font-weight: 700;
 }
 .carla-qr {
-  width: 120px;
-  height: 120px;
-  background: white;
-  flex-shrink: 0;
+  width: 25mm;
+  height: 25mm;
+  background: #fff;
 }
 .carla-account {
   display: block;
@@ -243,31 +326,45 @@
   .carla-panel {
     padding: 20px;
   }
-  .carla-card {
-    flex-wrap: wrap;
-    padding: 20px;
-  }
+
   .carla-form {
     grid-template-columns: 1fr;
   }
 }
 @media print {
-  body:has(.carla-card) * {
-    visibility: hidden;
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
   }
-  body:has(.carla-card) .carla-card,
-  body:has(.carla-card) .carla-card * {
-    visibility: visible;
+  body:has(.carla-wallet) *:not(:has(.carla-wallet)):not(.carla-wallet):not(.carla-wallet *) {
+    display: none !important;
+  }
+  body:has(.carla-wallet) *:has(.carla-wallet) {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    background: #fff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .carla-wallet {
+    display: flex !important;
+    flex-wrap: nowrap;
+    gap: 5mm;
+    margin: 0;
+    width: 175mm;
+    max-width: none;
+    overflow: visible;
+    break-inside: avoid;
   }
   .carla-card {
-    position: absolute;
-    left: 0;
-    top: 0;
+    width: 85mm !important;
+    height: 50mm !important;
+    flex: 0 0 85mm;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-    width: 850px;
-  }
-  .carla-portal button {
-    display: none;
+    break-inside: avoid;
   }
 }

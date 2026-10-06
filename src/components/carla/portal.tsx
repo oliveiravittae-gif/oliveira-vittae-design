@@ -13,6 +13,7 @@ import {
   type Commission,
 } from "@/lib/carla";
 import "./portal.css";
+import { CarlaWallet } from "./wallet";
 
 type FormValues = Record<
   | "name"
@@ -314,7 +315,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
           `${window.location.origin}/verificar?id=${p.data.card_token}`,
           {
             width: 180,
-            margin: 1,
+            margin: 4,
           },
         );
         if (version !== requestVersion.current) return;
@@ -1405,29 +1406,12 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                 )}
                 {!admin && tab === "card" && profile && (
                   <Section title="Carteira digital oficial">
-                    <div className="carla-card">
-                      {photo && (
-                        <img className="carla-photo" src={photo} alt={`Foto de ${profile.name}`} />
-                      )}
-                      <div>
-                        <p>OLIVEIRA VITTAE DESIGNER & IA</p>
-                        <h2>{profile.name}</h2>
-                        <p>Representante Comercial Autorizado CARLA</p>
-                        <p>Matrícula {profile.registration}</p>
-                        <p>CPF {profile.document}</p>
-                        <p>
-                          Identificação comercial. Não confere poderes para assinar pela empresa.
-                        </p>
-                      </div>
-                      {qr && (
-                        <img
-                          className="carla-qr"
-                          src={qr}
-                          alt="QR de verificação da situação atual"
-                        />
-                      )}
-                    </div>
+                    <CarlaWallet profile={profile} photo={photo} qr={qr} />
                     <button onClick={() => window.print()}>Imprimir / salvar em PDF</button>
+                    <p>
+                      Frente e verso: 8,5 × 5 cm cada. Na impressão, use escala de 100% e desative
+                      os cabeçalhos e rodapés do navegador.
+                    </p>
                     <p>
                       A verificação consulta a situação atual do representante. Uma carteira
                       impressa não comprova permanência do vínculo.
