@@ -138,6 +138,22 @@
   color: #1a2b44;
   border: 1px solid #dce2e9;
 }
+.carla-material-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #1a2b44;
+  color: white;
+  text-decoration: none;
+}
+.carla-material-link:hover {
+  background: #2b4264;
+}
+.carla-material-link:focus-visible {
+  outline: 3px solid #c5a059;
+  outline-offset: 3px;
+}
 .carla-tabs button[aria-current] {
   background: #1a2b44;
   color: white;

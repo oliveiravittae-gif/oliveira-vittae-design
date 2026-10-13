@@ -1434,6 +1434,30 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                 )}
                 {tab === "materials" && (
                   <Section title="Regras comerciais e apresentação CARLA">
+                    <h3>Checklist de personalização da assistente</h3>
+                    <p>
+                      Use este checklist para reunir os dados da clínica e personalizar a CARLA ou
+                      o nome escolhido. O PDF contém 56 itens sobre identidade, serviços, agenda,
+                      atendimento, integrações e aprovação, com campos para preencher no computador
+                      ou imprimir. Identifique as pendências antes de encaminhar à equipe técnica.
+                    </p>
+                    <div className="carla-actions">
+                      <a
+                        className="carla-material-link"
+                        href="/materiais/checklist-personalizacao-assistente-clinica-v1.0.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Abrir checklist (PDF)
+                      </a>
+                      <a
+                        className="carla-material-link"
+                        href="/materiais/checklist-personalizacao-assistente-clinica-v1.0.pdf"
+                        download="Checklist-personalizacao-assistente-clinica-V1.0.pdf"
+                      >
+                        Baixar checklist
+                      </a>
+                    </div>
                     <h3>Aquisição</h3>
                     <p>
                       Primeira venda elegível do mês: 30% da implantação e 10% das três primeiras
