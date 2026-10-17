@@ -104,6 +104,35 @@ describe("CARLA access screens", () => {
     expect(await screen.findByRole("status")).toHaveTextContent("Senha definida.");
     expect(updateUser).toHaveBeenCalledWith({ password: "synthetic-password-only" });
   });
+  it("rechecks a pending profile when the representative returns to the page", async () => {
+    let status = "pending";
+    const query = {
+      select: () => query,
+      eq: () => query,
+      maybeSingle: async () => ({
+        data: { id: "poll-test", status, photo_path: null },
+        error: null,
+      }),
+    };
+    mock.client.mockReturnValue({
+      from: () => query,
+      rpc: async () => ({ data: false, error: null }),
+      auth: {
+        onAuthStateChange: (
+          callback: (event: string, session: { user: { id: string } }) => void,
+        ) => {
+          callback("INITIAL_SESSION", { user: { id: "poll-test" } });
+          return { data: { subscription: { unsubscribe: vi.fn() } } };
+        },
+      },
+    });
+    render(<CarlaPortal />);
+    expect(await screen.findByRole("heading", { name: "Cadastro em análise" })).toBeInTheDocument();
+    status = "suspended";
+    fireEvent(window, new Event("focus"));
+    expect(await screen.findByText("Situação: suspenso.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Cadastro em análise" })).not.toBeInTheDocument();
+  });
   it("fails closed when Supabase configuration is absent", () => {
     mock.client.mockReturnValue(null);
     render(<CarlaPortal />);
