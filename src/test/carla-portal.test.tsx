@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CarlaPortal } from "@/components/carla/portal";
 const mock = vi.hoisted(() => ({ client: vi.fn() }));
@@ -132,6 +132,68 @@ describe("CARLA access screens", () => {
     fireEvent(window, new Event("focus"));
     expect(await screen.findByText("Situação: suspenso.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Cadastro em análise" })).not.toBeInTheDocument();
+  });
+  it("converts reais before a confirmed financial request and preserves the form when cancelled", async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: true, error: null });
+    const client = {
+      id: "clinic-test",
+      name: "Clínica sintética",
+      status: "active",
+      representative_id: "test",
+    };
+    mock.client.mockReturnValue({
+      from: (table: string) => {
+        const data = table === "carla_clients" ? [client] : [];
+        const q = {
+          select: () => q,
+          eq: () => q,
+          order: () => q,
+          range: async () => ({ data, error: null }),
+          maybeSingle: async () => ({ data: null, error: null }),
+          then: (resolve: (v: unknown) => unknown) =>
+            Promise.resolve({ data, error: null }).then(resolve),
+        };
+        return q;
+      },
+      rpc,
+      auth: {
+        onAuthStateChange: (
+          callback: (event: string, session: { user: { id: string } }) => void,
+        ) => {
+          callback("INITIAL_SESSION", { user: { id: "test-admin" } });
+          return { data: { subscription: { unsubscribe: vi.fn() } } };
+        },
+      },
+    });
+    render(<CarlaPortal admin />);
+    fireEvent.click(await screen.findByRole("button", { name: "Financeiro" }));
+    for (const [label, value] of [
+      ["Cliente", "clinic-test"],
+      ["Tipo", "setup"],
+      ["Competência contratual (1, 2, 3…)", "1"],
+      ["Vencimento contratual", "2026-11-01T12:00"],
+      ["Valor original (R$)", "1.997,00"],
+      ["Incremento (R$, 0 se não houver)", "0"],
+    ]) {
+      fireEvent.change(screen.getByLabelText(label!), { target: { value } });
+    }
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    fireEvent.click(screen.getByRole("button", { name: "Conferir e registrar obrigação" }));
+    await waitFor(() => expect(confirm).toHaveBeenCalled());
+    expect(rpc).not.toHaveBeenCalledWith("carla_create_invoice", expect.anything());
+    expect(screen.getByLabelText("Valor original (R$)")).toHaveValue("1.997,00");
+    confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Conferir e registrar obrigação" }));
+    await waitFor(() =>
+      expect(rpc).toHaveBeenCalledWith("carla_create_invoice", {
+        payload: expect.objectContaining({
+          original_cents: "199700",
+          expansion_cents: "0",
+          client_id: "clinic-test",
+        }),
+      }),
+    );
+    confirm.mockRestore();
   });
   it("fails closed when Supabase configuration is absent", () => {
     mock.client.mockReturnValue(null);

@@ -437,3 +437,24 @@
   margin: 18px 0;
   overflow-wrap: anywhere;
 }
+.carla-pending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.carla-pending-grid button {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  padding: 18px;
+  background: #f3f5f8;
+  color: #1a2b44;
+  border: 1px solid #b3c0d0;
+}
+.carla-pending-grid button strong {
+  font-size: 30px;
+}
+.carla-pending-grid button:hover {
+  background: #e6edf5;
+}

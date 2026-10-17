@@ -15,6 +15,8 @@ import {
 import "./portal.css";
 import { CarlaWallet } from "./wallet";
 import { RepresentativesAdmin } from "./representatives-admin";
+import { AdminPending } from "./admin-pending";
+import { commercialStatus, reaisToCents } from "@/lib/carla-operations";
 
 type FormValues = Record<
   | "name"
@@ -83,6 +85,7 @@ type Field = {
   type?: string;
   options?: { value: string; label: string }[];
   optional?: boolean;
+  signed?: boolean;
 };
 type Contact = {
   id: string;
@@ -118,10 +121,12 @@ function Form({
   fields,
   submit,
   label = "Salvar",
+  confirm = false,
 }: {
   fields: Field[];
   submit: (data: FormValues, form: HTMLFormElement) => Promise<void>;
   label?: string;
+  confirm?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -131,12 +136,39 @@ function Form({
     setBusy(true);
     setMessage("");
     try {
-      await submit(
-        Object.fromEntries(
-          [...new FormData(form)].filter(([, v]) => typeof v === "string"),
-        ) as FormValues,
-        form,
-      );
+      const values = Object.fromEntries(
+        [...new FormData(form)].filter(([, v]) => typeof v === "string"),
+      ) as FormValues;
+      for (const field of fields) {
+        if (field.type === "currency") {
+          try {
+            values[field.name as keyof FormValues] = String(
+              reaisToCents(values[field.name as keyof FormValues], field.signed),
+            );
+          } catch (e) {
+            throw new Error(`${field.label}: ${e instanceof Error ? e.message : "Valor inválido"}`);
+          }
+        }
+      }
+      if (confirm) {
+        const summary = fields
+          .filter(
+            (f) =>
+              !["textarea", "file"].includes(f.type ?? "") && values[f.name as keyof FormValues],
+          )
+          .map((f) => {
+            const value = values[f.name as keyof FormValues];
+            return `${f.label}: ${f.type === "currency" ? money(Number(value)) : (f.options?.find((o) => o.value === value)?.label ?? value)}`;
+          })
+          .join("\n");
+        if (
+          !window.confirm(
+            `Confira antes de confirmar:\n\n${summary}\n\nDeseja registrar esta operação?`,
+          )
+        )
+          return;
+      }
+      await submit(values, form);
       setMessage("Operação concluída.");
       form.reset();
     } catch (error) {
@@ -170,7 +202,9 @@ function Form({
           ) : (
             <input
               name={f.name}
-              type={f.type ?? "text"}
+              type={f.type === "currency" ? "text" : (f.type ?? "text")}
+              inputMode={f.type === "currency" ? "decimal" : undefined}
+              placeholder={f.type === "currency" ? "Ex.: 1.997,00" : undefined}
               required={!f.optional}
               min={f.type === "number" && f.name !== "cents" ? 0 : undefined}
               step={f.type === "number" ? "1" : undefined}
@@ -220,6 +254,9 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
   const [notice, setNotice] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "signup" | "reset" | "password">("login");
   const [tab, setTab] = useState("dashboard");
+  const [commercialSearch, setCommercialSearch] = useState("");
+  const [representativeFilter, setRepresentativeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -433,10 +470,11 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
     setNotice("");
     setError("");
   }
-  async function rpc(name: string, args: Record<string, unknown>) {
+  async function rpc(name: string, args: Record<string, unknown>, success?: string) {
     if (!db || !userId) throw new Error("Faça login.");
     const r = await db.rpc(name, args);
     if (r.error) throw new Error(r.error.message);
+    if (success) setNotice(success);
     await refresh(userId);
   }
   async function insert(table: string, payload: Record<string, unknown>) {
@@ -499,6 +537,39 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
   const representativeName = (id: string) =>
     profiles.find((p) => p.id === id)?.name ?? profile?.name ?? id;
   const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? id;
+  const searchTerm = commercialSearch.trim().toLocaleLowerCase("pt-BR");
+  const matches = (owner: string, status: string, text: string) =>
+    (!representativeFilter || owner === representativeFilter) &&
+    (!statusFilter || status === statusFilter) &&
+    text.toLocaleLowerCase("pt-BR").includes(searchTerm);
+  const shownClients = clients.filter((c) =>
+    matches(
+      c.representative_id,
+      c.status,
+      `${c.name} ${c.contract_ref} ${representativeName(c.representative_id)}`,
+    ),
+  );
+  const shownOpportunities = opportunities.filter((o) =>
+    matches(
+      o.representative_id,
+      o.status,
+      `${o.company} ${o.contact} ${representativeName(o.representative_id)}`,
+    ),
+  );
+  const shownCommissions = commissions.filter((c) =>
+    matches(
+      c.representative_id,
+      c.status,
+      `${clientName(invoices.find((i) => i.id === c.invoice_id)?.client_id ?? "")} ${representativeName(c.representative_id)}`,
+    ),
+  );
+  const shownCycles = cycles.filter((c) =>
+    matches(
+      c.representative_id,
+      c.status,
+      `${clientName(c.client_id)} ${representativeName(c.representative_id)}`,
+    ),
+  );
   const activeCycles = cycles.filter((c) => ["open", "submitted", "rejected"].includes(c.status));
   const accrued = commissions
     .filter((c) => c.status === "accrued")
@@ -758,15 +829,94 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                     <button
                       key={id}
                       aria-current={tab === id ? "page" : undefined}
-                      onClick={() => setTab(id!)}
+                      onClick={() => {
+                        setTab(id!);
+                        setStatusFilter("");
+                      }}
                     >
                       {label}
                     </button>
                   ))}
                   <button onClick={() => void refresh(userId)}>Atualizar</button>
                 </nav>
+                {admin &&
+                  ["opportunities", "clients", "retention", "commissions"].includes(tab) && (
+                    <div className="carla-panel carla-filters">
+                      <label>
+                        Buscar cliente, contato ou representante
+                        <input
+                          type="search"
+                          value={commercialSearch}
+                          onChange={(e) => setCommercialSearch(e.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Representante
+                        <select
+                          value={representativeFilter}
+                          onChange={(e) => setRepresentativeFilter(e.target.value)}
+                        >
+                          <option value="">Todos</option>
+                          {profiles.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} · {p.registration}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Situação
+                        <select
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                          <option value="">Todas</option>
+                          {[
+                            ...new Set(
+                              (tab === "clients"
+                                ? clients
+                                : tab === "opportunities"
+                                  ? opportunities
+                                  : tab === "retention"
+                                    ? cycles
+                                    : commissions
+                              ).map((row) => row.status),
+                            ),
+                          ].map((status) => (
+                            <option key={status} value={status}>
+                              {commercialStatus(status)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <button
+                        onClick={() => {
+                          setCommercialSearch("");
+                          setRepresentativeFilter("");
+                          setStatusFilter("");
+                        }}
+                      >
+                        Limpar filtros
+                      </button>
+                    </div>
+                  )}
                 {tab === "dashboard" && (
                   <>
+                    {admin && (
+                      <AdminPending
+                        profiles={profiles}
+                        opportunities={opportunities}
+                        cycles={cycles}
+                        commissions={commissions}
+                        invoices={invoices}
+                        navigate={(section) => {
+                          setTab(section);
+                          setStatusFilter("");
+                          setCommercialSearch("");
+                          setRepresentativeFilter("");
+                        }}
+                      />
+                    )}
                     <div className="carla-metrics">
                       {[
                         [
@@ -839,13 +989,14 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                     )}
                     <Section title="Oportunidades registradas">
                       <List>
-                        {opportunities.map((o) => (
+                        {(admin ? shownOpportunities : opportunities).map((o) => (
                           <article key={o.id}>
                             <strong>
                               #{o.sequence} · {o.company}
                             </strong>
                             <p>
-                              {o.contact} · {o.status} · Proteção até {date(o.protected_until)}
+                              {o.contact} · {commercialStatus(o.status)} · Proteção até{" "}
+                              {date(o.protected_until)}
                             </p>
                             <p>{o.evidence}</p>
                             {o.decision_reason && <p>Decisão: {o.decision_reason}</p>}
@@ -874,7 +1025,9 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           </article>
                         ))}
                       </List>
-                      {!opportunities.length && <p>Nenhuma oportunidade registrada.</p>}
+                      {!(admin ? shownOpportunities : opportunities).length && (
+                        <p>Nenhuma oportunidade encontrada.</p>
+                      )}
                     </Section>
                     {!admin && (
                       <Section title="Interação comercial substancial">
@@ -932,11 +1085,11 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                   <>
                     <Section title="Clientes vinculados">
                       <List>
-                        {clients.map((c) => (
+                        {(admin ? shownClients : clients).map((c) => (
                           <article key={c.id}>
                             <strong>{c.name}</strong>
                             <p>
-                              {c.status} · Ativação {date(c.activated_at)} · Faixa{" "}
+                              {commercialStatus(c.status)} · Ativação {date(c.activated_at)} · Faixa{" "}
                               {c.tier ?? "aguardando primeiro crédito"}
                             </p>
                             <p>
@@ -991,7 +1144,9 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           </article>
                         ))}
                       </List>
-                      {!clients.length && <p>Nenhum cliente atribuído.</p>}
+                      {!(admin ? shownClients : clients).length && (
+                        <p>Nenhum cliente encontrado.</p>
+                      )}
                     </Section>
                     {admin && (
                       <Section title="Formalizar cliente e iniciar acompanhamento">
@@ -1039,11 +1194,11 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                         impedimentos exigem análise documentada.
                       </p>
                       <List>
-                        {cycles.map((c) => (
+                        {(admin ? shownCycles : cycles).map((c) => (
                           <article key={c.id}>
                             <strong>{clientName(c.client_id)}</strong>
                             <p>
-                              {date(c.starts_at)} a {date(c.ends_at)} · {c.status}
+                              {date(c.starts_at)} a {date(c.ends_at)} · {commercialStatus(c.status)}
                             </p>
                             {c.decision_reason && <p>{c.decision_reason}</p>}
                             {admin && ["open", "submitted", "rejected"].includes(c.status) && (
@@ -1146,14 +1301,14 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                     <Section title="Demonstrativo de comissões">
                       <button onClick={exportStatement}>Exportar CSV</button>
                       <List>
-                        {commissions.map((c) => (
+                        {(admin ? shownCommissions : commissions).map((c) => (
                           <article key={c.id}>
                             <strong>
                               {money(c.amount_cents)} · {c.kind}
                             </strong>
                             <p>
                               Competência {invoices.find((i) => i.id === c.invoice_id)?.competence}{" "}
-                              · {c.status} · Vencimento regular{" "}
+                              · {commercialStatus(c.status)} · Vencimento regular{" "}
                               {date(c.due_date + "T12:00:00-03:00")}
                             </p>
                             {admin && c.status === "accrued" && (
@@ -1266,6 +1421,8 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                         comprovada; expansão exige evento próprio.
                       </p>
                       <Form
+                        confirm
+                        label="Conferir e registrar obrigação"
                         fields={[
                           { name: "client_id", label: "Cliente", options: clientOptions },
                           {
@@ -1288,13 +1445,13 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           },
                           {
                             name: "original_cents",
-                            label: "Valor original em centavos",
-                            type: "number",
+                            label: "Valor original (R$)",
+                            type: "currency",
                           },
                           {
                             name: "expansion_cents",
-                            label: "Incremento em centavos (0 se não houver)",
-                            type: "number",
+                            label: "Incremento (R$, 0 se não houver)",
+                            type: "currency",
                           },
                           {
                             name: "retention_cycle_id",
@@ -1335,9 +1492,13 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           },
                         ]}
                         submit={async (d) =>
-                          rpc("carla_create_invoice", {
-                            payload: { ...d, due_at: timestamp(d.due_at) },
-                          })
+                          rpc(
+                            "carla_create_invoice",
+                            {
+                              payload: { ...d, due_at: timestamp(d.due_at) },
+                            },
+                            "Obrigação registrada. Confira o lançamento antes de registrar outro.",
+                          )
                         }
                       />
                     </Section>
@@ -1348,6 +1509,8 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                         inadimplência posterior.
                       </p>
                       <Form
+                        confirm
+                        label="Conferir e registrar ajuste"
                         fields={[
                           {
                             name: "owner",
@@ -1365,7 +1528,12 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                             ),
                             optional: true,
                           },
-                          { name: "cents", label: "Ajuste assinado em centavos", type: "number" },
+                          {
+                            name: "cents",
+                            label: "Valor do ajuste (R$, negativo para débito)",
+                            type: "currency",
+                            signed: true,
+                          },
                           reason,
                           {
                             name: "proof",
@@ -1374,18 +1542,24 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           },
                         ]}
                         submit={async (d) =>
-                          rpc("carla_record_adjustment", {
-                            owner: d.owner,
-                            commission: d.commission || null,
-                            cents: Number(d.cents),
-                            reason: d.reason,
-                            proof: d.proof,
-                          })
+                          rpc(
+                            "carla_record_adjustment",
+                            {
+                              owner: d.owner,
+                              commission: d.commission || null,
+                              cents: Number(d.cents),
+                              reason: d.reason,
+                              proof: d.proof,
+                            },
+                            "Ajuste registrado. O lançamento original foi preservado.",
+                          )
                         }
                       />
                     </Section>
                     <Section title="Conciliar recebimento">
                       <Form
+                        confirm
+                        label="Conferir e conciliar recebimento"
                         fields={[
                           {
                             name: "invoice",
@@ -1399,8 +1573,8 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           },
                           {
                             name: "cents",
-                            label: "Valor efetivamente recebido em centavos",
-                            type: "number",
+                            label: "Valor efetivamente recebido (R$)",
+                            type: "currency",
                           },
                           { name: "reference", label: "Identificador único do crédito bancário" },
                           {
@@ -1411,11 +1585,15 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           { name: "proof", label: "Comprovante conciliado", type: "textarea" },
                         ]}
                         submit={async (d) =>
-                          rpc("carla_record_receipt", {
-                            ...d,
-                            cents: Number(d.cents),
-                            settlement: timestamp(d.settlement),
-                          })
+                          rpc(
+                            "carla_record_receipt",
+                            {
+                              ...d,
+                              cents: Number(d.cents),
+                              settlement: timestamp(d.settlement),
+                            },
+                            "Recebimento conciliado. Confira os valores atualizados antes de repetir a operação.",
+                          )
                         }
                       />
                       <p>
