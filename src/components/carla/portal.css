@@ -458,3 +458,27 @@
 .carla-pending-grid button:hover {
   background: #e6edf5;
 }
+.carla-crm-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+.carla-crm-stages button {
+  background: #edf1f6;
+  color: #1a2b44;
+  border: 1px solid #aebdce;
+}
+.carla-crm-stages button[aria-pressed="true"] {
+  background: #1a2b44;
+  color: white;
+}
+.carla-crm-stages strong {
+  margin-left: 8px;
+}
+.carla-crm-editor {
+  margin-top: 28px;
+  padding: 20px;
+  border: 2px solid #bc934a;
+  border-radius: 12px;
+}

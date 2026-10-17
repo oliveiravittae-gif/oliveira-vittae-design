@@ -175,6 +175,88 @@ describe("CARLA database: real Postgres SQL with synthetic Auth/Storage schemas"
       "id"
     ] as string;
   });
+  it("keeps CRM isolated, enforces ownership and records immutable history", async () => {
+    const before = (
+      await db.query("select status,protected_until from public.carla_opportunities where id=$1", [
+        opportunity,
+      ])
+    ).rows;
+    const save = "select * from public.carla_save_pipeline($1,$2,$3,$4,$5,$6,$7)";
+    const args = [
+      opportunity,
+      "contacted",
+      "Telefonar para a clínica sintética",
+      "2026-11-01T12:00:00Z",
+      null,
+      "Teste sintético",
+      0,
+    ];
+    await expect(asUser(other, save, args)).rejects.toThrow("não autorizado");
+    await expect(asUser(null, save, args)).rejects.toThrow();
+    await expect(
+      asUser(rep, save, [opportunity, "contacted", "", null, null, "", 0]),
+    ).rejects.toThrow("próxima ação");
+    const saved = await asUser(rep, save, args);
+    expect(saved.rows[0]).toMatchObject({ stage: "contacted", version: 1, updated_by: rep });
+    expect(
+      (await asUser(other, "select * from public.carla_opportunity_pipeline")).rows,
+    ).toHaveLength(0);
+    expect((await asUser(other, "select * from public.carla_crm_history")).rows).toHaveLength(0);
+    expect((await asUser(admin, "select * from public.carla_crm_history")).rows).toHaveLength(1);
+    await expect(asUser(rep, save, args)).rejects.toThrow("outra pessoa");
+    await expect(
+      asUser(
+        rep,
+        "update public.carla_opportunity_pipeline set updated_by=$1 where opportunity_id=$2",
+        [admin, opportunity],
+      ),
+    ).rejects.toThrow();
+    await expect(asUser(rep, "delete from public.carla_crm_history")).rejects.toThrow();
+    await expect(
+      asUser(rep, save, [opportunity, "lost", null, null, "curto", "", 1]),
+    ).rejects.toThrow("motivo da perda");
+    await asUser(rep, save, [
+      opportunity,
+      "lost",
+      null,
+      null,
+      "Clínica sintética adiou o projeto",
+      "",
+      1,
+    ]);
+    await asUser(admin, save, [
+      opportunity,
+      "won",
+      null,
+      null,
+      null,
+      "Formalização continua separada",
+      2,
+    ]);
+    expect(
+      (
+        await asUser(
+          rep,
+          "select stage,version,next_action_at from public.carla_opportunity_pipeline",
+        )
+      ).rows,
+    ).toEqual([{ stage: "won", version: 3, next_action_at: null }]);
+    expect((await asUser(rep, "select * from public.carla_crm_history")).rows).toHaveLength(3);
+    expect(
+      (
+        await db.query(
+          "select status,protected_until from public.carla_opportunities where id=$1",
+          [opportunity],
+        )
+      ).rows,
+    ).toEqual(before);
+    expect(
+      (await db.query("select count(*)::int as count from public.carla_clients")).rows[0],
+    ).toEqual({ count: 1 });
+    expect(
+      (await db.query("select count(*)::int as count from public.carla_commissions")).rows[0],
+    ).toEqual({ count: 0 });
+  });
   it("rejects fabricated cycles and requires two attempts on distinct local days", async () => {
     await expect(
       asUser(

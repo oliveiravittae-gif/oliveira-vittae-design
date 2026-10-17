@@ -16,6 +16,7 @@ import "./portal.css";
 import { CarlaWallet } from "./wallet";
 import { RepresentativesAdmin } from "./representatives-admin";
 import { AdminPending } from "./admin-pending";
+import { CarlaCRM } from "./crm";
 import { commercialStatus, reaisToCents } from "@/lib/carla-operations";
 
 type FormValues = Record<
@@ -815,6 +816,7 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                   {[
                     ["dashboard", "Visão geral"],
                     ["opportunities", "Oportunidades"],
+                    ["crm", "CRM / Funil"],
                     ["clients", "Clientes"],
                     ["retention", "Retenção"],
                     ["commissions", "Comissões"],
@@ -967,6 +969,14 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                       todos os registros carregados.
                     </p>
                   </>
+                )}
+                {tab === "crm" && (
+                  <CarlaCRM
+                    db={db}
+                    opportunities={opportunities}
+                    profiles={profiles}
+                    admin={admin}
+                  />
                 )}
                 {tab === "opportunities" && (
                   <>
