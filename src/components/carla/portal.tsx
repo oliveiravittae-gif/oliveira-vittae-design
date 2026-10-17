@@ -14,6 +14,7 @@ import {
 } from "@/lib/carla";
 import "./portal.css";
 import { CarlaWallet } from "./wallet";
+import { RepresentativesAdmin } from "./representatives-admin";
 
 type FormValues = Record<
   | "name"
@@ -383,6 +384,44 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
     // The Supabase instance is stable for this mounted portal.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, admin]);
+  useEffect(() => {
+    if (!db || !userId || admin || profile?.status !== "pending") return;
+    let live = true;
+    let checking = false;
+    async function checkApproval() {
+      if (!live || checking || document.visibilityState === "hidden") return;
+      checking = true;
+      const version = requestVersion.current;
+      try {
+        const result = await db!
+          .from("carla_profiles")
+          .select("status")
+          .eq("id", userId!)
+          .maybeSingle();
+        if (!live || version !== requestVersion.current || result.error) return;
+        if (result.data && result.data.status !== "pending") {
+          if (result.data.status === "active")
+            setNotice("Seu cadastro foi aprovado. Acesso à área comercial liberado.");
+          await refresh(userId!);
+        }
+      } catch {
+        // A transient polling failure must not change permissions or interrupt photo upload.
+      } finally {
+        checking = false;
+      }
+    }
+    const timer = window.setInterval(() => void checkApproval(), 30000);
+    window.addEventListener("focus", checkApproval);
+    document.addEventListener("visibilitychange", checkApproval);
+    return () => {
+      live = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", checkApproval);
+      document.removeEventListener("visibilitychange", checkApproval);
+    };
+    // refresh uses the current session; stale responses are invalidated above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [db, userId, admin, profile?.status]);
   async function switchAccount() {
     if (!db) return;
     const result = await db.auth.signOut({ scope: "local" });
@@ -513,7 +552,12 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
         <h1>
           {admin || (isAdmin && !profile) ? "Administração CARLA" : "Sua carteira. Seu desempenho."}
         </h1>
-        {notice && <p role="status">{notice}</p>}
+        {notice && (
+          <div className="carla-success" role="status">
+            {notice}
+            <button onClick={() => setNotice("")}>Fechar aviso</button>
+          </div>
+        )}
         {!db ? (
           <Section title="Conexão pendente">
             <p>
@@ -673,6 +717,11 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                           : "Escolha uma foto de perfil e clique em Enviar foto. Depois do envio, a administração fará a conferência para liberar seu acesso."}
                       </p>
                     </div>
+                    <p>
+                      A situação é conferida automaticamente a cada 30 segundos enquanto esta página
+                      estiver visível.
+                    </p>
+                    <button onClick={() => void refresh(userId)}>Verificar liberação agora</button>
                     <Form
                       fields={[
                         {
@@ -1201,54 +1250,12 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                   </>
                 )}
                 {admin && tab === "approvals" && (
-                  <Section title="Conferência dos representantes">
-                    <List>
-                      {profiles.map((p) => (
-                        <article key={p.id}>
-                          <strong>
-                            {p.name} · {p.registration}
-                          </strong>
-                          <p>
-                            {p.status} · {p.photo_path ? "Foto enviada" : "Foto pendente"}
-                          </p>
-                          <p>
-                            CPF {p.document} · {p.phone} · {p.address}
-                          </p>
-                          {p.photo_path && (
-                            <button
-                              onClick={async () => {
-                                const r = await db.storage
-                                  .from("carla-photos")
-                                  .createSignedUrl(p.photo_path!, 60);
-                                if (r.data)
-                                  window.open(r.data.signedUrl, "_blank", "noopener,noreferrer");
-                                else setError("Foto indisponível.");
-                              }}
-                            >
-                              Conferir foto
-                            </button>
-                          )}
-                          <Form
-                            fields={[
-                              {
-                                name: "new_status",
-                                label: "Situação",
-                                options: [
-                                  option("active", "Aprovar — vínculo e cadastro conferidos"),
-                                  option("suspended", "Suspender"),
-                                  option("ended", "Encerrar"),
-                                ],
-                              },
-                              reason,
-                            ]}
-                            submit={async (d) =>
-                              rpc("carla_review_profile", { profile_id: p.id, ...d })
-                            }
-                          />
-                        </article>
-                      ))}
-                    </List>
-                  </Section>
+                  <RepresentativesAdmin
+                    db={db}
+                    profiles={profiles}
+                    onUpdated={setProfiles}
+                    onNotice={setNotice}
+                  />
                 )}
                 {admin && tab === "finance" && (
                   <>
@@ -1436,8 +1443,8 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                   <Section title="Regras comerciais e apresentação CARLA">
                     <h3>Checklist de personalização da assistente</h3>
                     <p>
-                      Use este checklist para reunir os dados da clínica e personalizar a CARLA ou
-                      o nome escolhido. O PDF contém 56 itens sobre identidade, serviços, agenda,
+                      Use este checklist para reunir os dados da clínica e personalizar a CARLA ou o
+                      nome escolhido. O PDF contém 56 itens sobre identidade, serviços, agenda,
                       atendimento, integrações e aprovação, com campos para preencher no computador
                       ou imprimir. Identifique as pendências antes de encaminhar à equipe técnica.
                     </p>
