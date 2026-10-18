@@ -78,6 +78,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        "http-equiv": "Content-Security-Policy",
+        content: [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline'",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' data: blob: https://zhfputohhpvwcdozamtm.supabase.co",
+          "connect-src 'self' https://zhfputohhpvwcdozamtm.supabase.co wss://zhfputohhpvwcdozamtm.supabase.co",
+          "media-src 'self'",
+          "frame-ancestors 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+        ].join("; "),
+      },
+      { "http-equiv": "X-Content-Type-Options", content: "nosniff" },
+      { name: "referrer", content: "strict-origin-when-cross-origin" },
       { title: "Oliveira Vittae Designer & IA" },
       { name: "description", content: "Oliveira Vittae Designer & IA" },
       { property: "og:title", content: "Oliveira Vittae Designer & IA" },

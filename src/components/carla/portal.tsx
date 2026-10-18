@@ -13,6 +13,45 @@ import {
   type Commission,
 } from "@/lib/carla";
 import "./portal.css";
+
+/* ── Rate limiter para login (proteção contra brute force) ── */
+const LOGIN_ATTEMPTS = new Map<string, { count: number; blockedUntil: number }>();
+const MAX_ATTEMPTS = 5;
+const BLOCK_DURATION_MS = 60_000; // 1 minuto de bloqueio
+
+function checkLoginRateLimit(email: string): void {
+  const key = email.toLowerCase().trim();
+  const now = Date.now();
+  const entry = LOGIN_ATTEMPTS.get(key);
+  if (entry) {
+    if (now < entry.blockedUntil) {
+      const secs = Math.ceil((entry.blockedUntil - now) / 1000);
+      throw new Error(`Muitas tentativas. Aguarde ${secs}s antes de tentar novamente.`);
+    }
+    if (now >= entry.blockedUntil) {
+      entry.count = 0; // reset após expirar o bloqueio
+    }
+  }
+}
+
+function recordLoginAttempt(email: string, failed: boolean): void {
+  const key = email.toLowerCase().trim();
+  const now = Date.now();
+  let entry = LOGIN_ATTEMPTS.get(key);
+  if (!entry) {
+    entry = { count: 0, blockedUntil: 0 };
+    LOGIN_ATTEMPTS.set(key, entry);
+  }
+  if (failed) {
+    entry.count++;
+    if (entry.count >= MAX_ATTEMPTS) {
+      entry.blockedUntil = now + BLOCK_DURATION_MS;
+    }
+  } else {
+    entry.count = 0;
+    entry.blockedUntil = 0;
+  }
+}
 import { CarlaWallet } from "./wallet";
 import { RepresentativesAdmin } from "./representatives-admin";
 import { AdminPending } from "./admin-pending";
@@ -708,11 +747,18 @@ export function CarlaPortal({ admin = false }: { admin?: boolean }) {
                         );
                         setAuthMode("login");
                       }
-                    } else
+                    } else {
+                      checkLoginRateLimit(d.email);
                       r = await db.auth.signInWithPassword({
                         email: d.email,
                         password: d.password,
                       });
+                      if (r.error) {
+                        recordLoginAttempt(d.email, true);
+                        throw new Error(r.error.message);
+                      }
+                      recordLoginAttempt(d.email, false);
+                    }
                     if (r.error) throw new Error(r.error.message);
                   }}
                 />
